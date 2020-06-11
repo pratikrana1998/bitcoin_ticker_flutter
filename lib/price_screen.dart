@@ -59,9 +59,26 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 
   Map<String,String> coinValues = {};
-  bool isWaiting = false;
+  bool isWaiting = false; // To display ? in value field until the data is fetched from the API
 
-  void getData() async {
+  Column makeCards() {
+    List<CryptoCard> cryptoCards = [];
+    for (String crypto in cryptoList) {
+      cryptoCards.add(
+        CryptoCard(
+          cryptoCurrency: crypto,
+          selectedCurrency: selectedCurrency,
+          value: isWaiting ? '?' : coinValues[crypto],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: cryptoCards,
+    );
+  }
+
+  void getData() async {  //to request data from API asynchronously
     isWaiting = true;
     try {
       var data = await CoinData().getCoinData(selectedCurrency);
@@ -84,26 +101,7 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              CryptoCard(
-                cryptoCurrency: 'BTC',
-                value: isWaiting ? '?' : coinValues['BTC'],
-                selectedCurrency: selectedCurrency,
-              ),
-              CryptoCard(
-                cryptoCurrency: 'ETH',
-                value: isWaiting ? '?' : coinValues['ETH'],
-                selectedCurrency: selectedCurrency,
-              ),
-              CryptoCard(
-                cryptoCurrency: 'LTC',
-                value: isWaiting ? '?' : coinValues['LTC'],
-                selectedCurrency: selectedCurrency,
-              ),
-            ],
-          ),
+          makeCards(),
           Container(
             height: 150.0,
             alignment: Alignment.center,
@@ -117,8 +115,7 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 }
 
-class CryptoCard extends StatelessWidget {
-  //2: You'll need to able to pass the selectedCurrency, value and cryptoCurrency to the constructor of this CryptoCard Widget.
+class CryptoCard extends StatelessWidget {  //created a seperate card widget for individual cards: BTC, ETH, LTC
   const CryptoCard({
     this.value,
     this.selectedCurrency,
